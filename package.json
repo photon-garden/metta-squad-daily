@@ -15,7 +15,8 @@
     "lint": "prettier --ignore-path .gitignore --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
     "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. .",
     "convert-audio-files": "bash ./scripts/convert-audio-files-to-mp3.sh",
-    "delete-m4a-files": "bash ./scripts/delete-m4a-files.sh"
+    "delete-m4a-files": "bash ./scripts/delete-m4a-files.sh",
+    "generate-json-for-audio-files": "ts-node ./scripts/generate-json-for-audio-files.ts"
   },
   "devDependencies": {
     "@sveltejs/adapter-auto": "next",
@@ -28,6 +29,7 @@
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-svelte3": "^3.2.1",
+    "pkg-dir": "^6.0.1",
     "postcss-cli": "^9.1.0",
     "prettier": "^2.4.1",
     "prettier-plugin-svelte": "^2.4.0",
@@ -35,6 +37,7 @@
     "svelte-check": "^2.2.6",
     "svelte-preprocess": "^4.9.4",
     "tailwindcss": "^3.0.12",
+    "ts-node": "^10.4.0",
     "tslib": "^2.3.1",
     "typescript": "^4.4.3"
   },
