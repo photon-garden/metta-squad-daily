@@ -1,0 +1,1 @@
+for f in ./static/guided-metta-meditations/*.m4a; do ffmpeg -i "$f" -codec:v copy -codec:a libmp3lame -q:a 4 "${f%.m4a}.mp3"; done

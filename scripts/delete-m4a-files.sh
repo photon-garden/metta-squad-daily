@@ -1,0 +1,1 @@
+rm ./static/guided-metta-meditations/*.m4a

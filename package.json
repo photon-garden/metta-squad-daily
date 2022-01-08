@@ -1,0 +1,42 @@
+{
+  "name": "metta-squad-daily",
+  "version": "0.0.1",
+  "scripts": {
+    "svelte-kit:dev": "svelte-kit dev",
+    "svelte-kit:build": "svelte-kit build",
+    "tailwind:watch": "TAILWIND_MODE=watch NODE_ENV=development postcss src/styles/tailwind.css -o src/styles/tailwind-output.css -w",
+    "tailwind:build": "TAILWIND_MODE=build NODE_ENV=production postcss src/styles/tailwind.css -o src/styles/tailwind-output.css",
+    "dev": "concurrently \"yarn run svelte-kit:dev\" \"yarn run tailwind:watch\"",
+    "build": "yarn run tailwind:build && yarn run svelte-kit:build",
+    "package": "svelte-kit package",
+    "preview": "svelte-kit preview",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-check --tsconfig ./tsconfig.json --watch",
+    "lint": "prettier --ignore-path .gitignore --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
+    "format": "prettier --ignore-path .gitignore --write --plugin-search-dir=. .",
+    "convert-audio-files": "bash ./scripts/convert-audio-files-to-mp3.sh",
+    "delete-m4a-files": "bash ./scripts/delete-m4a-files.sh"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "next",
+    "@sveltejs/adapter-cloudflare": "^1.0.0-next.7",
+    "@sveltejs/kit": "next",
+    "@typescript-eslint/eslint-plugin": "^4.31.1",
+    "@typescript-eslint/parser": "^4.31.1",
+    "autoprefixer": "^10.4.2",
+    "concurrently": "^7.0.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-svelte3": "^3.2.1",
+    "postcss-cli": "^9.1.0",
+    "prettier": "^2.4.1",
+    "prettier-plugin-svelte": "^2.4.0",
+    "svelte": "^3.44.0",
+    "svelte-check": "^2.2.6",
+    "svelte-preprocess": "^4.9.4",
+    "tailwindcss": "^3.0.12",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.3"
+  },
+  "type": "module"
+}
