@@ -13,11 +13,17 @@
 </script>
 
 <script lang="ts">
-	import type MeditationRecording from '$lib/MeditationRecording'
+	import type { SerializedMeditationRecording } from '$lib/MeditationRecording'
+	import MeditationRecording from '$lib/MeditationRecording'
+	import MeditationRecordingList from '$lib/components/MeditationRecordingList.svelte'
+	import MeditationRecordingListItem from '$lib/components/MeditationRecordingListItem.svelte'
 
 	import { onMount } from 'svelte'
 
-	export let serializedMeditationRecordings: MeditationRecording[]
+	export let serializedMeditationRecordings: SerializedMeditationRecording[]
+	$: recordings = serializedMeditationRecordings.map(
+		MeditationRecording.fromJson
+	)
 
 	let localStorageData: string
 	const favoriteBeverage = 'favoriteBeverage'
@@ -39,11 +45,4 @@
 <button on:click={updateLocalStorage}>Add data to local storage</button>
 {localStorageData}
 
-<ol>
-	{#each serializedMeditationRecordings as recording}
-		<li>
-			{recording.name}
-			{recording.filename}
-		</li>
-	{/each}
-</ol>
+<MeditationRecordingList {recordings} />

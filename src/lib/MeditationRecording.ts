@@ -68,6 +68,10 @@ export default class MeditationRecording {
 		return typeof this.dateOrIntroIndex === 'number'
 	}
 
+	get listened(): boolean {
+		return Math.random() < 0.5
+	}
+
 	toJson(): SerializedMeditationRecording {
 		let dateOrIntroIndex: Iso8601DateString | number
 		if (this.dateOrIntroIndex instanceof Date) {
