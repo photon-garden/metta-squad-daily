@@ -1,4 +1,4 @@
-import cloudflare from '@sveltejs/adapter-cloudflare'
+import vercel from '@sveltejs/adapter-vercel'
 import preprocess from 'svelte-preprocess';
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -8,9 +8,7 @@ const config = {
 	preprocess: preprocess(),
 
 	kit: {
-		adapter: cloudflare({
-			platform: 'node'
-		}),
+		adapter: vercel(),
 
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: '#svelte'
