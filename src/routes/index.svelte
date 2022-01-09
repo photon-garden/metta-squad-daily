@@ -1,8 +1,13 @@
-<script context="module">
-	/** @type {import('@sveltejs/kit').ErrorLoad} */
+<script context="module" lang="ts">
+	import type { SerializedMeditationRecording } from '$lib/types'
+	import MeditationRecording from '$lib/MeditationRecording'
+
 	export async function load({ fetch }) {
 		const res = await fetch('/meditation-recordings.json')
-		const serializedMeditationRecordings = await res.json()
+		const serializedMeditationRecordings: SerializedMeditationRecording[] =
+			await res.json()
+
+		MeditationRecording.sortSerialized(serializedMeditationRecordings)
 
 		return {
 			props: {
@@ -13,14 +18,13 @@
 </script>
 
 <script lang="ts">
-	import type { SerializedMeditationRecording } from '$lib/MeditationRecording'
-	import MeditationRecording from '$lib/MeditationRecording'
 	import MeditationRecordingList from '$lib/components/MeditationRecordingList.svelte'
-	import MeditationRecordingListItem from '$lib/components/MeditationRecordingListItem.svelte'
+	import SelectedRecording from '$lib/components/SelectedRecording.svelte'
 
 	import { onMount } from 'svelte'
 
 	export let serializedMeditationRecordings: SerializedMeditationRecording[]
+
 	$: recordings = serializedMeditationRecordings.map(
 		MeditationRecording.fromJson
 	)
@@ -38,11 +42,12 @@
 	}
 </script>
 
-<h1 class="">Welcome to SvelteKit</h1>
+<!-- <h1 class="">Welcome to SvelteKit</h1>
 <p>
 	Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation
 </p>
 <button on:click={updateLocalStorage}>Add data to local storage</button>
-{localStorageData}
+{localStorageData} -->
 
+<SelectedRecording recordingSelectedOnPageLoad={recordings[0]} />
 <MeditationRecordingList {recordings} />

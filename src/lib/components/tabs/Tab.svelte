@@ -9,7 +9,7 @@
 	<a
 		href="#"
 		on:click
-		class="capitalize border-indigo-500 text-indigo-600 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
+		class="first:ml-6 capitalize border-indigo-500 text-indigo-600 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
 		aria-current="page"
 	>
 		{option.text}
@@ -24,7 +24,7 @@
 	<a
 		href="#"
 		on:click
-		class="capitalize border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
+		class="first:ml-6 capitalize border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm"
 	>
 		{option.text}
 

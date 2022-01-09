@@ -1,57 +1,73 @@
 <script lang="ts">
 	import type {
 		MeditationRecording,
+		MeditationRecordingState,
 		TabOption,
 		ListenedState
 	} from '$lib/types'
-	import type { Writable } from 'svelte/store'
-	import { writable } from 'svelte/store'
+	import { derived, get } from 'svelte/store'
+	import type { Readable } from 'svelte/store'
 	import MeditationRecordingListItem from './MeditationRecordingListItem.svelte'
 	import Tabs from './tabs/Tabs.svelte'
 
 	export let recordings: MeditationRecording[]
 
-	$: notListenedRecordings = recordings.filter(
-		(recording) => !recording.listened
-	)
-	$: listenedRecordings = recordings.filter((recording) => recording.listened)
+	const options: Readable<TabOption<ListenedState>[]> = derived(
+		recordings,
+		($recordings: MeditationRecordingState[]) => {
+			const listenedRecordings = $recordings.filter(
+				($recording) => $recording.listened
+			)
+			const notListenedRecordings = $recordings.filter(
+				($recording) => !$recording.listened
+			)
 
-	let options: TabOption<ListenedState>[]
-	$: options = [
-		{ text: 'All', number: recordings.length, value: 'all' },
-		{ text: 'Listened', number: listenedRecordings.length, value: 'listened' },
-		{
-			text: 'Not listened',
-			number: notListenedRecordings.length,
-			value: 'notListened'
+			const updatedOptions: TabOption<ListenedState>[] = [
+				{ text: 'All', number: $recordings.length, value: 'all' },
+				{
+					text: 'Listened',
+					number: listenedRecordings.length,
+					value: 'listened'
+				},
+				{
+					text: 'Not listened',
+					number: notListenedRecordings.length,
+					value: 'notListened'
+				}
+			]
+
+			return updatedOptions
 		}
-	]
+	)
 
-	const selected: Writable<TabOption<ListenedState>> = writable({
-		text: 'All',
-		number: recordings.length,
-		value: 'all'
-	})
+	let filteredRecordings = recordings
 
-	$: filteredRecordings = filterRecordings($selected, recordings)
-
-	function filterRecordings(
-		selected: TabOption<ListenedState>,
-		recordings: MeditationRecording[]
-	): MeditationRecording[] {
+	function updateFilteredRecordings(
+		event: CustomEvent<TabOption<ListenedState>>
+	) {
+		const selected = event.detail
 		switch (selected.value) {
 			case 'all':
-				return recordings
+				filteredRecordings = recordings
+				break
 			case 'listened':
-				return listenedRecordings
+				filteredRecordings = recordings.filter((recording) => {
+					const recordingState: MeditationRecordingState = get(recording)
+					return recordingState.listened
+				})
+				break
 			case 'notListened':
-				return notListenedRecordings
+				filteredRecordings = recordings.filter((recording) => {
+					const recordingState: MeditationRecordingState = get(recording)
+					return !recordingState.listened
+				})
+				break
 		}
 	}
 </script>
 
-<Tabs {options} {selected} />
 <div class="bg-white shadow overflow-hidden sm:rounded-md">
+	<Tabs on:select={updateFilteredRecordings} options={$options} />
 	<ul class="divide-y divide-gray-200">
 		{#each filteredRecordings as recording}
 			<MeditationRecordingListItem {recording} />

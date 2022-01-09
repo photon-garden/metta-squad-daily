@@ -1,23 +1,30 @@
 <script lang="ts">
 	import type { MeditationRecording } from '$lib/types'
-	import DateOrIntroIndex from './DateOrIntroIndex.svelte'
+	import DateOrIntroIndexListItemSubheading from './DateOrIntroIndexListItemSubheading.svelte'
 
 	export let recording: MeditationRecording
 </script>
 
 <li>
-	<a href="#" class="block hover:bg-gray-50">
+	<a
+		on:click={(event) => {
+			recording.markAsNextRecording()
+			event.preventDefault()
+		}}
+		href="#"
+		class="block group hover:bg-gray-50"
+	>
 		<div class="px-4 py-4 flex items-center sm:px-6">
 			<div class="min-w-0 flex-1 sm:flex sm:items-center sm:justify-between">
 				<div class="truncate">
 					<div class="flex text-sm">
 						<p class="font-medium text-indigo-600 truncate">
-							{recording.name}
+							{$recording.name}
 						</p>
 						<!-- <p class="ml-1 flex-shrink-0 font-normal text-gray-500">
 							in Engineering
 						</p> -->
-						{#if recording.listened}
+						{#if $recording.listened}
 							<div class="ml-2 flex-shrink-0 flex">
 								<p
 									class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
@@ -29,35 +36,31 @@
 					</div>
 					<div class="mt-2 flex">
 						<div class="flex items-center text-sm text-gray-500">
-							<DateOrIntroIndex {recording} />
+							<DateOrIntroIndexListItemSubheading {recording} />
 						</div>
 					</div>
 				</div>
-				<div class="mt-4 flex-shrink-0 sm:mt-0 sm:ml-5">
+				<div
+					class="group-hover:visible sm:invisible mt-4 flex-shrink-0 sm:mt-0 sm:ml-5"
+				>
 					<div class="flex overflow-hidden -space-x-1">
-						<img
-							class="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-							src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-							alt="Dries Vincent"
-						/>
-
-						<img
-							class="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-							src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-							alt="Lindsay Walton"
-						/>
-
-						<img
-							class="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-							src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-							alt="Courtney Henry"
-						/>
-
-						<img
-							class="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-							src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-							alt="Tom Cook"
-						/>
+						<div class="mt-5 flex justify-center sm:mt-0">
+							<a
+								on:click={(event) => {
+									recording.toggleListened()
+									event.preventDefault()
+									event.stopPropagation()
+								}}
+								href="#"
+								class="flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+							>
+								{#if $recording.listened}
+									Mark as not listened
+								{:else}
+									Mark as listened
+								{/if}
+							</a>
+						</div>
 					</div>
 				</div>
 			</div>

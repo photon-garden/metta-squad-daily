@@ -1,11 +1,12 @@
-import type { Iso8601DateString } from './types'
+import type { Iso8601DateString } from '$lib/types'
+import { Comparison } from '$lib/types'
+import type { Readable, Writable } from 'svelte/store'
+import { writable, get } from 'svelte/store'
 import { capitalize } from './Strings'
+import recordingSelectedByUser from '$lib/stores/recordingSelectedByUser'
+import * as Urls from '$lib/Urls'
 
-export default class MeditationRecording {
-	filename: string
-	dateOrIntroIndex: Date | number
-	name: string
-
+export default class MeditationRecording implements Readable<MeditationRecordingState> {
 	static fromFilename(
 		isIntro: boolean,
 		filename: string
@@ -54,36 +55,121 @@ export default class MeditationRecording {
 		return new MeditationRecording(json.filename, json.name, dateOrIntroIndex)
 	}
 
+	static sortSerialized(recordings: SerializedMeditationRecording[]) {
+		recordings.sort((a: SerializedMeditationRecording, b: SerializedMeditationRecording) => {
+			const aIsIntro = typeof a.dateOrIntroIndex === 'number'
+			const bIsIntro = typeof b.dateOrIntroIndex === 'number'
+
+			// When comparing intro recordings, sort recordings with
+			// a lower index first.
+			if (aIsIntro && bIsIntro) {
+				const aIndex = a.dateOrIntroIndex as number
+				const bIndex = b.dateOrIntroIndex as number
+
+				if (aIndex < bIndex) {
+					return Comparison.LeftComesFirst
+				}
+
+				if (aIndex > bIndex) {
+					return Comparison.RightComesFirst
+				}
+
+				throw new Error('Got two intro recordings with the same index.')
+			}
+
+			// When comparing weekly recordings, sort more recent
+			// recordings first.
+			if (!aIsIntro && !bIsIntro) {
+				const aDate = new Date(a.dateOrIntroIndex as string)
+				const bDate = new Date(b.dateOrIntroIndex as string)
+
+				// A is after B.
+				if (aDate > bDate) {
+					return Comparison.LeftComesFirst
+				}
+
+				// A is before B.
+				if (aDate < bDate) {
+					return Comparison.RightComesFirst
+				}
+
+				throw new Error('Got two weekly recordings with the same date.')
+			}
+
+			// At this point, we know A and B are different types, and that
+			// either A is an intro recording or B is an intro recording.
+			//
+			// Sort intro recordings before weekly recordings.
+			if (aIsIntro && !bIsIntro) {
+				return Comparison.LeftComesFirst
+			}
+
+			if (!aIsIntro && bIsIntro) {
+				return Comparison.RightComesFirst
+			}
+
+			throw new Error('Somehow missed an exhaustive combination of A being an intro recording and B being an intro recording.')
+		})
+	}
+
+	state: Writable<MeditationRecordingState>
+
 	constructor(
 		filename: string,
 		name: string,
 		dateOrIntroIndex: Date | number
 	) {
-		this.filename = filename
-		this.name = name
-		this.dateOrIntroIndex = dateOrIntroIndex
+		this.state = writable({
+			filename: filename,
+			name: name,
+			dateOrIntroIndex: dateOrIntroIndex,
+			listened: Math.random() < 0.5,
+		})
 	}
 
 	get isIntro(): boolean {
-		return typeof this.dateOrIntroIndex === 'number'
+		const $state = get(this.state)
+		return typeof $state.dateOrIntroIndex === 'number'
 	}
 
-	get listened(): boolean {
-		return Math.random() < 0.5
+	toggleListened() {
+		this.state.update($state => {
+			$state.listened = !$state.listened
+			return $state
+		})
+	}
+
+	subscribe(run: any, invalidate: any) {
+		return this.state.subscribe(run, invalidate)
+	}
+
+	markAsNextRecording() {
+		recordingSelectedByUser.set(this)
+	}
+
+	get audioUrl(): string {
+		const $state = get(this.state)
+		if (this.isIntro) {
+			return Urls.introAudioFile($state.filename)
+		}
+
+		return Urls.weeklyAudioFile($state.filename)
 	}
 
 	toJson(): SerializedMeditationRecording {
+		const $state = get(this.state)
+
 		let dateOrIntroIndex: Iso8601DateString | number
-		if (this.dateOrIntroIndex instanceof Date) {
-			dateOrIntroIndex = this.dateOrIntroIndex.toISOString()
+		if ($state.dateOrIntroIndex instanceof Date) {
+			dateOrIntroIndex = $state.dateOrIntroIndex.toISOString()
 		} else {
-			dateOrIntroIndex = this.dateOrIntroIndex
+			dateOrIntroIndex = $state.dateOrIntroIndex
 		}
 
 		return {
-			filename: this.filename,
+			filename: $state.filename,
 			dateOrIntroIndex,
-			name: this.name
+			name: $state.name
 		}
 	}
 }
@@ -92,4 +178,11 @@ export interface SerializedMeditationRecording {
 	filename: string
 	dateOrIntroIndex: Iso8601DateString | number
 	name: string
+}
+
+export interface MeditationRecordingState {
+	filename: string
+	dateOrIntroIndex: Date | number
+	name: string
+	listened: boolean
 }
